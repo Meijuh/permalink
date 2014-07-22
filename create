@@ -1,0 +1,62 @@
+#!/bin/bash
+
+## these values you can configure
+
+# the length of the unique part of the URL
+LENGTH=10
+
+# the directory in which the permalinks are stored
+LINK_DIR="./"
+
+echoerr() { cat <<< "$@" 1>&2; }
+
+print_usage() {
+	echoerr usage: $0 LINK [HASH]
+	echoerr LINK should be a valid URL, like http://google.com
+	echoerr if HASH is supplied the link in HASH will be updated
+}
+
+if [ -z "$1" ]; then
+   print_usage
+   exit 1
+fi
+
+if [[ "$1" == "-h" ]]; then
+	print_usage
+	exit 0
+fi
+
+regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+
+if [[ ! $1 =~ $regex ]]; then 
+	echoerr $1 is not a valid URL
+	exit 1
+fi
+
+if [[ -f $LINK_DIR ]]; then
+	echoerr directory '$LINK_DIR' does not exist; creating
+	/usr/bin/mkdir $LINK_DIR
+fi
+
+if [[ $# -eq 2 ]]; then
+	hash=$2
+	if [[ ! -f $LINK_DIR/$hash ]]; then
+		echoerr $hash could not be found
+		exit 1
+	fi
+	old=`cat $LINK_DIR/$hash`
+	echo $hash is changed from $old to $1
+else
+	hash=`date | md5sum | cut -c-$LENGTH`
+	while [[ -f $LINK_DIR/$hash ]]; do
+		hash=`date | md5sum | cut -c-$LENGTH`
+	done
+	
+	echo $hash will now redirect to $1
+fi
+echo $1 > $LINK_DIR/$hash
+		
+
+	
+
+

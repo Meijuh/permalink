@@ -1,0 +1,5 @@
+<VirtualHost *:80>
+    ServerName pm.jmeijer.nl
+    DocumentRoot /var/cache/git/permalink
+    DirectoryIndex forward.php
+</VirtualHost>
